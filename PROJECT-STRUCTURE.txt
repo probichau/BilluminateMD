@@ -1,0 +1,79 @@
+BilluminateMD/
+│
+├── 📄 README.md                          # Main project documentation
+├── 📄 NEXT-STEPS.md                      # ⭐ START HERE - Immediate actions
+├── 📄 PROJECT-SUMMARY.md                 # Complete build summary
+├── 📄 .gitignore                         # Git ignore rules
+│
+├── 📁 frontend/                          # React Application (Mobile-First)
+│   ├── 📄 package.json                   # Dependencies (React, Vite, Tailwind, etc.)
+│   ├── 📄 vite.config.js                 # Vite configuration
+│   ├── 📄 tailwind.config.js             # Tailwind CSS configuration
+│   ├── 📄 postcss.config.js              # PostCSS configuration
+│   ├── 📄 index.html                     # HTML entry point
+│   ├── 📄 .env.example                   # Environment variables template
+│   │
+│   └── 📁 src/
+│       ├── 📄 main.jsx                   # React entry point
+│       ├── 📄 App.jsx                    # Main app component with routing
+│       ├── 📄 index.css                  # Global styles + Tailwind
+│       ├── 📄 App.css                    # Additional styles
+│       │
+│       ├── 📁 pages/
+│       │   ├── 📄 HomePage.jsx           # Main upload page
+│       │   └── 📄 ResultsPage.jsx        # Results with blur effect
+│       │
+│       ├── 📁 components/
+│       │   ├── 📄 UploadZone.jsx         # Drag-drop + camera capture
+│       │   ├── 📄 ProcessingModal.jsx    # Processing animation
+│       │   └── 📄 PaymentModal.jsx       # Stripe payment integration
+│       │
+│       ├── 📁 services/                  # (Future: API client)
+│       ├── 📁 hooks/                     # (Future: Custom React hooks)
+│       └── 📁 utils/                     # (Future: Helper functions)
+│
+├── 📁 backend/                           # Node.js Express API
+│   ├── 📄 package.json                   # Dependencies (Express, Anthropic, Stripe, etc.)
+│   ├── 📄 server.js                      # Main Express server
+│   ├── 📄 .env.example                   # Environment variables template
+│   │
+│   ├── 📁 routes/
+│   │   ├── 📄 auditRoutes.js             # Bill upload & results endpoints
+│   │   └── 📄 paymentRoutes.js           # Payment processing endpoints
+│   │
+│   ├── 📁 controllers/
+│   │   ├── 📄 auditController.js         # Audit request handlers
+│   │   └── 📄 paymentController.js       # Payment request handlers
+│   │
+│   ├── 📁 services/                      # 🔥 Core Business Logic
+│   │   ├── 📄 aiService.js               # 🤖 Claude Vision integration
+│   │   ├── 📄 errorDetectionService.js   # 🔍 4 error detection algorithms
+│   │   ├── 📄 databaseService.js         # 💾 PostgreSQL operations
+│   │   └── 📄 storageService.js          # 📦 S3/CloudFlare R2 storage
+│   │
+│   ├── 📁 models/                        # (Future: Data models)
+│   ├── 📁 middleware/                    # (Future: Auth, validation)
+│   └── 📁 utils/                         # (Future: Helper functions)
+│
+└── 📁 docs/                              # 📚 Complete Documentation
+    ├── 📄 README.md                      # Documentation index
+    ├── 📄 00-SETUP-GUIDE.md              # Prerequisites & external services
+    ├── 📄 01-QUICK-START.md              # Local development tutorial
+    ├── 📄 02-FHIR-SCHEMA.md              # Data structure & FHIR mapping
+    ├── 📄 03-DEPLOYMENT.md               # Production deployment guide
+    └── 📄 04-API-REFERENCE.md            # Complete backend API docs
+
+📊 STATISTICS:
+- Total Files: 32
+- Frontend Components: 3
+- Backend Services: 4 (AI, Error Detection, Database, Storage)
+- API Endpoints: 5
+- Documentation Files: 6
+- Lines of Code: ~3,500
+
+🎯 KEY FILES TO START WITH:
+1. NEXT-STEPS.md                          # What to do right now
+2. docs/01-QUICK-START.md                 # How to run locally
+3. backend/services/aiService.js          # AI integration
+4. backend/services/errorDetectionService.js  # Error detection logic
+5. frontend/src/pages/ResultsPage.jsx     # Freemium UI
