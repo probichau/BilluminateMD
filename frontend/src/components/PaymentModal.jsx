@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X, CreditCard } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { API_URL } from '../config'
 
 // This will be set from environment variable
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder')
@@ -53,7 +54,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
 
     try {
       // Create payment intent on backend
-      const response = await fetch('/api/payment/create-intent', {
+      const response = await fetch(`${API_URL}/api/payment/create-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
 
       if (paymentIntent.status === 'succeeded') {
         // Update audit as paid on backend
-        await fetch(`/api/audit/${auditId}/unlock`, {
+        await fetch(`${API_URL}/api/audit/${auditId}/unlock`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
