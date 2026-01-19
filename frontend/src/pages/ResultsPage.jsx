@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { AlertCircle, Lock, CheckCircle, DollarSign, ArrowLeft } from 'lucide-react'
-import PaymentModal from '../components/PaymentModal'
+import { AlertCircle, Lock, CheckCircle, DollarSign, ArrowLeft, FileText } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import PaymentChoiceModal from '../components/PaymentChoiceModal'
+import AppealLetterModal from '../components/AppealLetterModal'
 
 function ResultsPage() {
   const { auditId } = useParams()
   const navigate = useNavigate()
+  const { hasActiveSubscription } = useAuth()
   const [auditData, setAuditData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showAppealLetterModal, setShowAppealLetterModal] = useState(false)
   const [isPaid, setIsPaid] = useState(false)
 
   useEffect(() => {
@@ -46,10 +50,13 @@ function ResultsPage() {
     )
   }
 
-  const totalPotentialSavings = auditData.errors.reduce(
-    (sum, error) => sum + error.potentialSavings,
-    0
+  // Use the savings breakdown from backend if available, otherwise calculate from errors
+  const totalPotentialSavings = auditData?.savings?.total ?? (
+    auditData?.errors?.reduce((sum, error) => sum + (error.potentialSavings || 0), 0) ?? 0
   )
+
+  const billingErrorSavings = auditData?.savings?.billingErrors ?? totalPotentialSavings
+  const charitySavings = auditData?.savings?.charityCare ?? 0
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -64,7 +71,7 @@ function ResultsPage() {
         </button>
         <h1 className="text-3xl font-bold text-slate-900">Audit Results</h1>
         <p className="text-slate-600 mt-2">
-          Analysis completed for {auditData.patientInfo.name}
+          Analysis completed for {auditData?.patientInfo?.name ?? 'Patient'}
         </p>
       </div>
 
@@ -73,7 +80,7 @@ function ResultsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-medium opacity-90 mb-2">
-              Potential Savings Identified
+              Total Potential Savings
             </h2>
             <p className="text-5xl font-bold">
               ${totalPotentialSavings.toFixed(2)}
@@ -81,11 +88,27 @@ function ResultsPage() {
           </div>
           <div className="text-right">
             <div className="bg-white bg-opacity-20 rounded-lg px-4 py-2 inline-block">
-              <p className="text-sm opacity-90">Errors Found</p>
-              <p className="text-3xl font-bold">{auditData.errors.length}</p>
+              <p className="text-sm opacity-90">Issues Found</p>
+              <p className="text-3xl font-bold">{auditData?.errors?.length ?? 0}</p>
             </div>
           </div>
         </div>
+
+        {/* Savings Breakdown */}
+        {auditData.savings && (
+          <div className="mt-6 pt-6 border-t border-white border-opacity-20">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm opacity-75">Billing Errors</p>
+                <p className="text-2xl font-semibold">${billingErrorSavings.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm opacity-75">Charity Care Eligible</p>
+                <p className="text-2xl font-semibold">${charitySavings.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Patient Info - Always Visible */}
@@ -94,12 +117,12 @@ function ResultsPage() {
           Patient Information
         </h3>
         <div className="grid md:grid-cols-2 gap-4">
-          <InfoRow label="Name" value={auditData.patientInfo.name} />
-          <InfoRow label="Date of Birth" value={auditData.patientInfo.dob} />
-          <InfoRow label="Date of Service" value={auditData.serviceInfo.dateOfService} />
-          <InfoRow label="Provider" value={auditData.providerInfo.name} />
-          <InfoRow label="Total Billed" value={`$${auditData.financials.totalBilled.toFixed(2)}`} />
-          <InfoRow label="Patient Responsibility" value={`$${auditData.financials.patientResponsibility.toFixed(2)}`} />
+          <InfoRow label="Name" value={auditData?.patientInfo?.name ?? 'N/A'} />
+          <InfoRow label="Date of Birth" value={auditData?.patientInfo?.dob ?? 'N/A'} />
+          <InfoRow label="Date of Service" value={auditData?.serviceInfo?.dateOfService ?? 'N/A'} />
+          <InfoRow label="Provider" value={auditData?.providerInfo?.name ?? 'N/A'} />
+          <InfoRow label="Total Billed" value={`$${(auditData?.financials?.totalBilled ?? 0).toFixed(2)}`} />
+          <InfoRow label="Patient Responsibility" value={`$${(auditData?.financials?.patientResponsibility ?? 0).toFixed(2)}`} />
         </div>
       </div>
 
@@ -115,9 +138,13 @@ function ResultsPage() {
         </div>
 
         <div className={isPaid ? '' : 'blur-content'}>
-          {auditData.errors.map((error, index) => (
-            <ErrorCard key={index} error={error} />
-          ))}
+          {auditData?.errors?.length > 0 ? (
+            auditData.errors.map((error, index) => (
+              <ErrorCard key={index} error={error} />
+            ))
+          ) : (
+            <p className="text-slate-600 text-center py-4">No billing errors detected</p>
+          )}
         </div>
 
         {/* Overlay for unpaid users */}
@@ -135,40 +162,147 @@ function ResultsPage() {
                 onClick={() => setShowPaymentModal(true)}
                 className="bg-primary-600 hover:bg-primary-700 text-white font-semibold px-8 py-3 rounded-lg transition-colors"
               >
-                Unlock for $9.99
+                Unlock Report
               </button>
+              <p className="text-slate-500 text-sm mt-3">
+                Starting at $29.99
+              </p>
             </div>
           </div>
         )}
       </div>
 
+      {/* Charity Care Eligibility Section - Only visible after payment */}
+      {isPaid && auditData?.charityAnalysis && (
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-xl shadow-md p-6 mb-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4 flex items-center">
+            <CheckCircle className="w-5 h-5 mr-2" />
+            Charity Care Eligibility
+          </h3>
+
+          <div className="space-y-4">
+            {/* FPL Status */}
+            {auditData.charityAnalysis.fplData && (
+              <div className="bg-white rounded-lg p-4">
+                <p className="text-sm text-slate-600 mb-1">Federal Poverty Level (FPL)</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {auditData.charityAnalysis.fplData.fplPercentage ?? 'N/A'}% of FPL
+                </p>
+                <p className="text-sm text-slate-600 mt-1">
+                  Household Income: ${auditData.patientInfo?.householdIncome?.toLocaleString() ?? 'N/A'} |
+                  Size: {auditData.patientInfo?.householdSize ?? 'N/A'} {auditData.patientInfo?.householdSize === 1 ? 'person' : 'people'}
+                </p>
+              </div>
+            )}
+
+            {/* Non-Profit Status */}
+            <div className="bg-white rounded-lg p-4">
+              <p className="text-sm text-slate-600 mb-1">Hospital Status</p>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-900">
+                  {auditData.charityAnalysis?.eligibilityCheck?.confidence === 'unknown' || auditData.charityAnalysis?.eligibilityCheck?.confidence === 'uncertain'
+                    ? '❓ Status Unknown'
+                    : auditData.charityAnalysis?.eligibilityCheck?.isNonProfit
+                      ? '✅ Non-Profit'
+                      : '❌ For-Profit'}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  auditData.charityAnalysis?.eligibilityCheck?.confidence === 'confirmed' ? 'bg-green-100 text-green-800' :
+                  auditData.charityAnalysis?.eligibilityCheck?.confidence === 'high' ? 'bg-blue-100 text-blue-800' :
+                  auditData.charityAnalysis?.eligibilityCheck?.confidence === 'likely' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-slate-100 text-slate-800'
+                }`}>
+                  {auditData.charityAnalysis?.eligibilityCheck?.confidence?.toUpperCase() ?? 'UNKNOWN'}
+                </span>
+              </div>
+              <p className="text-sm text-slate-600 mt-2">
+                {auditData.charityAnalysis?.eligibilityCheck?.reason ?? 'No additional information available'}
+                {auditData.charityAnalysis?.eligibilityCheck?.npiData?.npi && (
+                  <span className="block mt-1 text-xs text-slate-500">
+                    NPI: {auditData.charityAnalysis.eligibilityCheck.npiData.npi}
+                    {auditData.charityAnalysis.eligibilityCheck.npiData.ein && ` | EIN: ${auditData.charityAnalysis.eligibilityCheck.npiData.ein}`}
+                  </span>
+                )}
+                {auditData.charityAnalysis?.eligibilityCheck?.irsData?.ein && !auditData.charityAnalysis?.eligibilityCheck?.npiData?.ein && (
+                  <span className="block mt-1 text-xs text-slate-500">
+                    EIN: {auditData.charityAnalysis.eligibilityCheck.irsData.ein}
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* Recommendation */}
+            {auditData.charityAnalysis.recommendation && (
+              <div className={`rounded-lg p-4 ${
+                auditData.charityAnalysis.recommendation.shouldApply
+                  ? 'bg-green-50 border border-green-200'
+                  : 'bg-slate-50 border border-slate-200'
+              }`}>
+                <p className="font-semibold text-slate-900 mb-2">
+                  {auditData.charityAnalysis.recommendation.message}
+                </p>
+                {auditData.charityAnalysis.recommendation.nextSteps?.length > 0 && (
+                  <>
+                    <p className="text-sm font-medium text-slate-700 mb-2">Next Steps:</p>
+                    <ul className="text-sm text-slate-600 space-y-1">
+                      {auditData.charityAnalysis.recommendation.nextSteps.map((step, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <span className="text-blue-600 mr-2">•</span>
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Next Steps - Visible after payment */}
       {isPaid && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6">
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
           <div className="flex items-start">
             <CheckCircle className="w-6 h-6 text-green-600 mr-3 mt-1" />
-            <div>
+            <div className="flex-1">
               <h3 className="text-lg font-semibold text-green-900 mb-2">
                 Next Steps
               </h3>
-              <ul className="space-y-2 text-green-800">
-                <li>1. Contact your provider's billing department with these specific findings</li>
-                <li>2. Reference the CPT codes and dates of service listed above</li>
-                <li>3. Request a detailed invoice review</li>
-                <li>4. Ask for corrections or adjustments based on the errors found</li>
+              <ul className="space-y-2 text-green-800 mb-4">
+                <li>1. Generate a professional appeal letter using the button below</li>
+                <li>2. Review and print the letter on professional letterhead if available</li>
+                <li>3. Sign the letter and mail it to the hospital's billing department</li>
+                <li>4. Keep a copy for your records</li>
               </ul>
+              <button
+                onClick={() => setShowAppealLetterModal(true)}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md"
+              >
+                <FileText className="w-5 h-5" />
+                Help Me Write My Appeal Letter
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Payment Modal */}
+      {/* Payment Choice Modal */}
       {showPaymentModal && (
-        <PaymentModal
+        <PaymentChoiceModal
           auditId={auditId}
-          amount={9.99}
+          totalSavings={totalPotentialSavings}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowPaymentModal(false)}
+        />
+      )}
+
+      {/* Appeal Letter Modal */}
+      {showAppealLetterModal && (
+        <AppealLetterModal
+          auditId={auditId}
+          auditData={auditData}
+          onClose={() => setShowAppealLetterModal(false)}
         />
       )}
     </div>
@@ -196,32 +330,34 @@ function ErrorCard({ error }) {
       <div className="flex items-start justify-between mb-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className={`text-xs px-2 py-1 rounded-full border ${severityColors[error.severity]}`}>
-              {error.type}
+            <span className={`text-xs px-2 py-1 rounded-full border ${severityColors[error?.severity] ?? 'bg-slate-100 border-slate-300 text-slate-800'}`}>
+              {error?.type ?? 'Unknown'}
             </span>
             <span className="text-sm text-slate-500">
-              {error.cptCode}
+              {error?.cptCode ?? 'N/A'}
             </span>
           </div>
           <h4 className="font-semibold text-slate-900 mb-1">
-            {error.description}
+            {error?.description ?? 'No description available'}
           </h4>
           <p className="text-sm text-slate-600">
-            {error.explanation}
+            {error?.explanation ?? ''}
           </p>
         </div>
         <div className="ml-4 text-right">
           <p className="text-sm text-slate-500">Potential Savings</p>
           <p className="text-2xl font-bold text-green-600">
-            ${error.potentialSavings.toFixed(2)}
+            ${(error?.potentialSavings ?? 0).toFixed(2)}
           </p>
         </div>
       </div>
-      <div className="mt-3 pt-3 border-t border-slate-100">
-        <p className="text-sm text-slate-700">
-          <strong>What to do:</strong> {error.actionableAdvice}
-        </p>
-      </div>
+      {error?.actionableAdvice && (
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <p className="text-sm text-slate-700">
+            <strong>What to do:</strong> {error.actionableAdvice}
+          </p>
+        </div>
+      )}
     </div>
   )
 }

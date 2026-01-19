@@ -1,7 +1,71 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm create:*)"
+      "Bash(npm create:*)",
+      "Bash(node migrate.js:*)",
+      "Bash(node -e:*)",
+      "Bash(node test-db-connection.js:*)",
+      "Bash(ping:*)",
+      "Bash(cd:*)",
+      "Bash(grep:*)",
+      "Bash(cd /Users/bernardpeterrobichau/Library/CloudStorage/Dropbox/Claude\\\\ Code/BilluminateMD/backend && node --eval \"import\\('dotenv'\\).then\\(dotenv => { const result = dotenv.config\\(\\); console.log\\('Dotenv result:', result\\); console.log\\('ANTHROPIC_API_KEY:', process.env.ANTHROPIC_API_KEY ? 'LOADED' : 'NOT LOADED'\\); }\\)\":*)",
+      "Bash(timeout 2 node:*)",
+      "Bash(gtimeout 2 node:*)",
+      "Bash(node test-api-models.js:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(npm start:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(ps:*)",
+      "Bash(tail:*)",
+      "Bash(sleep:*)",
+      "Bash(node:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npm start)",
+      "Bash(curl:*)",
+      "Bash(eb:*)",
+      "Bash(pip3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(export PATH=\"/Users/bernardpeterrobichau/Library/Python/3.13/bin:$PATH\")",
+      "Bash(aws:*)",
+      "Bash(aws configure:*)",
+      "Bash(brew --version:*)",
+      "Bash(sudo installer:*)",
+      "Bash(/Users/bernardpeterrobichau/Library/Python/3.13/bin/eb:*)"
+    ],
+    "allowedPrompts": [
+      {
+        "tool": "Bash",
+        "prompt": "start development servers"
+      },
+      {
+        "tool": "Bash",
+        "prompt": "run tests"
+      },
+      {
+        "tool": "Bash",
+        "prompt": "install dependencies"
+      },
+      {
+        "tool": "Bash",
+        "prompt": "check server status"
+      },
+      {
+        "tool": "Bash",
+        "prompt": "view logs"
+      },
+      {
+        "tool": "Bash",
+        "prompt": "manage processes"
+      }
     ]
   }
 }

@@ -1,6 +1,7 @@
 import express from 'express'
 import multer from 'multer'
-import { uploadBill, getAuditResults, unlockReport } from '../controllers/auditController.js'
+import { uploadBill, submitFinancialInfo, getAuditResults, unlockReport, generateLetter } from '../controllers/auditController.js'
+import { optionalAuth } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
@@ -20,9 +21,23 @@ const upload = multer({
   },
 })
 
-// Routes
-router.post('/upload', upload.single('bill'), uploadBill)
+// Routes with optional authentication
+router.post('/upload', optionalAuth, (req, res, next) => {
+  upload.single('bill')(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err.message)
+      return res.status(400).json({
+        error: 'File upload error',
+        details: err.message
+      })
+    }
+    next()
+  })
+}, uploadBill)
+
+router.post('/:auditId/financial-info', optionalAuth, submitFinancialInfo)
 router.get('/:auditId', getAuditResults)
 router.post('/:auditId/unlock', unlockReport)
+router.post('/:auditId/generate-letter', generateLetter)
 
 export default router

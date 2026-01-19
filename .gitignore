@@ -35,3 +35,14 @@ coverage/
 *.tgz
 .npm
 .eslintcache
+
+# AWS & Deployment
+backend/.elasticbeanstalk/*
+!backend/.elasticbeanstalk/*.cfg.yml
+!backend/.elasticbeanstalk/*.global.yml
+backend/set-env-vars.sh
+backend/*.pid
+
+# Test files
+backend/test-*.js
+backend/check-*.js

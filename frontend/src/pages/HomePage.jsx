@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { FileUp, Camera, FileText } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import UploadZone from '../components/UploadZone'
 import ProcessingModal from '../components/ProcessingModal'
 
@@ -8,6 +9,7 @@ function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStage, setProcessingStage] = useState('')
   const navigate = useNavigate()
+  const { isAuthenticated, user, hasActiveSubscription, logout, getAuthHeaders } = useAuth()
 
   const handleFileUpload = async (file) => {
     setIsProcessing(true)
@@ -34,29 +36,94 @@ function HomePage() {
       const formData = new FormData()
       formData.append('bill', file)
 
-      // Send to backend API
+      // Send to backend API with optional auth headers
       const response = await fetch('/api/audit/upload', {
         method: 'POST',
+        headers: getAuthHeaders(),
         body: formData,
       })
 
       if (!response.ok) {
-        throw new Error('Upload failed')
+        let errorData
+        try {
+          errorData = await response.json()
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          errorData = { error: 'Unknown server error', details: 'Could not parse error response' }
+        }
+
+        console.error('Upload failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        })
+
+        const errorMessage = errorData.details || errorData.error || `Server error: ${response.status}`
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
 
-      // Navigate to results page
-      navigate(`/results/${data.auditId}`)
+      // Navigate to financial info page to collect household data
+      navigate('/financial-info', {
+        state: {
+          auditId: data.auditId,
+          providerName: data.providerName,
+          patientResponsibility: data.patientResponsibility,
+        }
+      })
     } catch (error) {
       console.error('Error processing bill:', error)
-      alert('An error occurred while processing your bill. Please try again.')
+      const userMessage = error.message.includes('Failed to fetch')
+        ? 'Cannot connect to server. Make sure the backend is running on port 3001.'
+        : error.message
+
+      alert(`Error: ${userMessage}\n\nCheck the browser console (F12) for more details.`)
       setIsProcessing(false)
     }
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Top Navigation */}
+      <div className="flex justify-end items-center mb-8">
+        <div className="flex gap-3">
+          {isAuthenticated ? (
+            <>
+              <div className="text-sm text-slate-600">
+                {user?.email}
+                {hasActiveSubscription && (
+                  <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                    Unlimited
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={logout}
+                className="text-slate-600 hover:text-slate-900 font-medium"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-slate-600 hover:text-slate-900 font-medium"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+
       {/* Header */}
       <header className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-600 rounded-full mb-6">

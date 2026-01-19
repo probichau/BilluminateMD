@@ -10,7 +10,10 @@ function getPool() {
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      // Supabase requires SSL even in development
+      ssl: {
+        rejectUnauthorized: false
+      },
     })
   }
   return pool
@@ -63,8 +66,8 @@ export async function storeAuditResult(auditResult) {
     await client.query(
       `INSERT INTO audits (
         audit_id, file_url, provider_info, patient_info, service_info,
-        financials, line_items, errors, is_paid, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        financials, line_items, errors, charity_analysis, savings, is_paid, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
       [
         auditResult.auditId,
         auditResult.fileUrl,
@@ -74,6 +77,8 @@ export async function storeAuditResult(auditResult) {
         JSON.stringify(auditResult.financials),
         JSON.stringify(auditResult.lineItems),
         JSON.stringify(auditResult.errors),
+        JSON.stringify(auditResult.charityAnalysis || null),
+        JSON.stringify(auditResult.savings || null),
         auditResult.isPaid,
         auditResult.createdAt,
       ]
@@ -115,6 +120,8 @@ export async function getAuditById(auditId) {
       financials: row.financials,
       lineItems: row.line_items,
       errors: row.errors,
+      charityAnalysis: row.charity_analysis,
+      savings: row.savings,
       isPaid: row.is_paid,
       paymentIntentId: row.payment_intent_id,
       createdAt: row.created_at,

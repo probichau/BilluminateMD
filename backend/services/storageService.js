@@ -4,17 +4,24 @@ import { v4 as uuidv4 } from 'uuid'
 let s3Client
 
 /**
- * Initialize S3 client
+ * Initialize S3 client (supports both AWS S3 and CloudFlare R2)
  */
 function getS3Client() {
   if (!s3Client) {
-    s3Client = new S3Client({
-      region: process.env.AWS_REGION || 'us-east-1',
+    const config = {
+      region: process.env.AWS_REGION || 'auto',
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
-    })
+    }
+
+    // If using CloudFlare R2, add custom endpoint
+    if (process.env.S3_ENDPOINT) {
+      config.endpoint = process.env.S3_ENDPOINT
+    }
+
+    s3Client = new S3Client(config)
   }
   return s3Client
 }
@@ -37,14 +44,12 @@ export async function uploadFileToStorage(file, auditId) {
     const fileName = `${auditId}-${uuidv4()}.${fileExtension}`
     const key = `bills/${fileName}`
 
-    // Upload to S3
+    // Upload to S3/R2
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
-      // Set to private - files should not be publicly accessible
-      ACL: 'private',
       // Optional: Add metadata
       Metadata: {
         auditId,
@@ -55,7 +60,14 @@ export async function uploadFileToStorage(file, auditId) {
     await client.send(command)
 
     // Construct file URL
-    const fileUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`
+    let fileUrl
+    if (process.env.S3_ENDPOINT) {
+      // CloudFlare R2 URL format
+      fileUrl = `${process.env.S3_ENDPOINT}/${bucketName}/${key}`
+    } else {
+      // AWS S3 URL format
+      fileUrl = `https://${bucketName}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`
+    }
 
     console.log(`File uploaded successfully: ${fileUrl}`)
 

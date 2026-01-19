@@ -1,21 +1,40 @@
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+let stripe = null
+
+/**
+ * Get or create Stripe client instance
+ * Lazy initialization ensures environment variables are loaded first
+ */
+function getStripeClient() {
+  if (!stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set')
+    }
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  }
+  return stripe
+}
 
 export async function createPaymentIntent(req, res) {
   try {
-    const { auditId, amount } = req.body
+    const { auditId } = req.body
 
-    if (!auditId || !amount) {
-      return res.status(400).json({ error: 'Audit ID and amount required' })
+    if (!auditId) {
+      return res.status(400).json({ error: 'Audit ID required' })
     }
 
+    // Fixed price: $29.99 per bill (in cents)
+    const amount = 2999
+
     // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Amount in cents
+    const stripeClient = getStripeClient()
+    const paymentIntent = await stripeClient.paymentIntents.create({
+      amount: amount,
       currency: 'usd',
       metadata: {
         auditId,
+        paymentType: 'one_time',
       },
     })
 
@@ -38,7 +57,8 @@ export async function handleWebhook(req, res) {
   let event
 
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret)
+    const stripeClient = getStripeClient()
+    event = stripeClient.webhooks.constructEvent(req.body, sig, webhookSecret)
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message)
     return res.status(400).send(`Webhook Error: ${err.message}`)

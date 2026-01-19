@@ -1,0 +1,32 @@
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+server.log
+
+# Test files
+test-*.js
+check-*.js
+
+# Documentation
+*.md
+!README.md
+
+# Process files
+*.pid
+
+# Node modules (will be installed on server)
+node_modules/
+
+# Migrations (run separately)
+migrations/
+migrate.js
+run-migration.js
+run-oauth-migration.js
