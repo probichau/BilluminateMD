@@ -243,8 +243,7 @@ export async function verifyIRS501c3(ein) {
         headers: {
           'User-Agent': 'BilluminateMD/1.0 (Medical Bill Auditor)',
           'Accept': 'text/html'
-        },
-        timeout: 5000 // 5 second timeout
+        }
       }
     )
 
