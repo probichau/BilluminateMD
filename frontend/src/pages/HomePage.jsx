@@ -4,6 +4,7 @@ import { FileUp, Camera, FileText } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import UploadZone from '../components/UploadZone'
 import ProcessingModal from '../components/ProcessingModal'
+import { API_URL } from '../config'
 
 function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -37,7 +38,7 @@ function HomePage() {
       formData.append('bill', file)
 
       // Send to backend API with optional auth headers
-      const response = await fetch('/api/audit/upload', {
+      const response = await fetch(`${API_URL}/api/audit/upload`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: formData,
