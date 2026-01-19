@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { API_URL } from '../config'
 
 function FinancialInfoPage() {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ function FinancialInfoPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`/api/audit/${auditId}/financial-info`, {
+      const response = await fetch(`${API_URL}/api/audit/${auditId}/financial-info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
