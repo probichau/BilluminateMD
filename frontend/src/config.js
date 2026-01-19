@@ -1,6 +1,7 @@
 /**
  * Application Configuration
  * Centralized configuration for API endpoints and other environment-specific settings
+ * Updated: 2026-01-19 - Production deployment with HTTPS
  */
 
 // API Base URL - uses environment variable in production, localhost in development
