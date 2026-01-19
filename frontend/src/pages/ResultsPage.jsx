@@ -4,6 +4,7 @@ import { AlertCircle, Lock, CheckCircle, DollarSign, ArrowLeft, FileText } from 
 import { useAuth } from '../context/AuthContext'
 import PaymentChoiceModal from '../components/PaymentChoiceModal'
 import AppealLetterModal from '../components/AppealLetterModal'
+import { API_URL } from '../config'
 
 function ResultsPage() {
   const { auditId } = useParams()
@@ -21,7 +22,7 @@ function ResultsPage() {
 
   const fetchAuditResults = async () => {
     try {
-      const response = await fetch(`/api/audit/${auditId}`)
+      const response = await fetch(`${API_URL}/api/audit/${auditId}`)
       if (!response.ok) {
         throw new Error('Failed to fetch audit results')
       }
