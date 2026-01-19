@@ -32,7 +32,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://main.d83mc8ny8u2m7.amplifyapp.com'
+    'https://main.d83mc8ny8u2m7.amplifyapp.com',
+    'https://app.billuminate.com'
   ],
   credentials: true
 }))
