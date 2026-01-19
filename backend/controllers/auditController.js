@@ -2,14 +2,13 @@ import { v4 as uuidv4 } from 'uuid'
 import { analyzeBillWithAI } from '../services/aiService.js'
 import { detectErrors } from '../services/errorDetectionService.js'
 import { analyzeCharityCare } from '../services/charityCareService.js'
-import { storeAuditResult, getAuditById, markAuditAsPaid } from '../services/databaseService.js'
+import { storeAuditResult, getAuditById, markAuditAsPaid, storeIntermediateAudit, getIntermediateAudit, deleteIntermediateAudit } from '../services/databaseService.js'
 import { uploadFile } from '../services/storageService.js'
 import { generateAppealLetter } from '../services/appealLetterService.js'
 import { hasActiveSubscription } from '../services/subscriptionService.js'
 import { doesBillMatchUser } from '../services/nameMatchingService.js'
 
-// Temporary storage for intermediate results (in production, use Redis or database)
-const pendingAudits = new Map()
+// Note: Intermediate audits now stored in database (intermediate_audits table)
 
 export async function uploadBill(req, res) {
   let auditId
@@ -70,9 +69,9 @@ export async function uploadBill(req, res) {
       createdAt: new Date().toISOString(),
     }
 
-    // Store in temporary map (in production, use Redis or database with TTL)
-    pendingAudits.set(auditId, intermediateData)
-    console.log(`✅ Step 4/4: Intermediate data stored, awaiting financial information`)
+    // Store intermediate data in database
+    await storeIntermediateAudit(auditId, intermediateData)
+    console.log(`✅ Step 4/4: Intermediate data stored in database, awaiting financial information`)
 
     console.log(`🎉 SUCCESS: Bill analysis complete for audit ${auditId}`)
     console.log(`⏭️  Next step: Collect household income and family size`)
@@ -127,8 +126,8 @@ export async function submitFinancialInfo(req, res) {
       })
     }
 
-    // Retrieve intermediate data
-    const intermediateData = pendingAudits.get(auditId)
+    // Retrieve intermediate data from database
+    const intermediateData = await getIntermediateAudit(auditId)
     if (!intermediateData) {
       return res.status(404).json({
         error: 'Audit not found',
@@ -136,7 +135,7 @@ export async function submitFinancialInfo(req, res) {
       })
     }
 
-    console.log('✅ Retrieved intermediate audit data')
+    console.log('✅ Retrieved intermediate audit data from database')
 
     // Check if user has active subscription and if bill matches their name
     let autoUnlocked = false
@@ -218,8 +217,8 @@ export async function submitFinancialInfo(req, res) {
     await storeAuditResult(auditResult)
     console.log('✅ Audit result stored successfully')
 
-    // Clean up temporary storage
-    pendingAudits.delete(auditId)
+    // Clean up intermediate data from database
+    await deleteIntermediateAudit(auditId)
 
     console.log(`🎉 SUCCESS: Complete audit analysis for ${auditId}`)
 

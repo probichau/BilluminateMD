@@ -94,6 +94,74 @@ export async function storeAuditResult(auditResult) {
 }
 
 /**
+ * Store intermediate audit data (before financial info submitted)
+ */
+export async function storeIntermediateAudit(auditId, intermediateData) {
+  const client = await getPool().connect()
+
+  try {
+    await client.query(
+      `INSERT INTO intermediate_audits (audit_id, data, created_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (audit_id)
+       DO UPDATE SET data = $2, created_at = NOW()`,
+      [auditId, JSON.stringify(intermediateData)]
+    )
+    console.log(`✅ Stored intermediate audit data for ${auditId}`)
+  } catch (error) {
+    console.error('Error storing intermediate audit:', error)
+    throw error
+  } finally {
+    client.release()
+  }
+}
+
+/**
+ * Retrieve intermediate audit data
+ */
+export async function getIntermediateAudit(auditId) {
+  const client = await getPool().connect()
+
+  try {
+    const result = await client.query(
+      'SELECT data FROM intermediate_audits WHERE audit_id = $1',
+      [auditId]
+    )
+
+    if (result.rows.length === 0) {
+      return null
+    }
+
+    return result.rows[0].data
+  } catch (error) {
+    console.error('Error retrieving intermediate audit:', error)
+    throw error
+  } finally {
+    client.release()
+  }
+}
+
+/**
+ * Delete intermediate audit data (cleanup after final storage)
+ */
+export async function deleteIntermediateAudit(auditId) {
+  const client = await getPool().connect()
+
+  try {
+    await client.query(
+      'DELETE FROM intermediate_audits WHERE audit_id = $1',
+      [auditId]
+    )
+    console.log(`🗑️  Cleaned up intermediate audit data for ${auditId}`)
+  } catch (error) {
+    console.error('Error deleting intermediate audit:', error)
+    // Don't throw - this is cleanup, not critical
+  } finally {
+    client.release()
+  }
+}
+
+/**
  * Retrieve audit by ID
  */
 export async function getAuditById(auditId) {
