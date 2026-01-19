@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, FileText, CheckCircle, Download, Copy } from 'lucide-react'
+import { API_URL } from '../config'
 
 export default function AppealLetterModal({ auditId, auditData, onClose }) {
   const [step, setStep] = useState(1) // 1: Verify Info, 2: Generating, 3: Display Letter
@@ -24,7 +25,7 @@ export default function AppealLetterModal({ auditId, auditData, onClose }) {
     setError('')
 
     try {
-      const response = await fetch(`http://localhost:3001/api/audit/${auditId}/generate-letter`, {
+      const response = await fetch(`${API_URL}/api/audit/${auditId}/generate-letter`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
