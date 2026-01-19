@@ -68,3 +68,4 @@ See `DEPLOYMENT-CHECKLIST.md` for complete deployment guide.
 ---
 
 For detailed deployment instructions, see `DEPLOYMENT-CHECKLIST.md`
+# Trigger rebuild
