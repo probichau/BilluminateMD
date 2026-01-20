@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { X, FileText, CheckCircle, Download, Copy } from 'lucide-react'
+import { X, FileText, CheckCircle, Download } from 'lucide-react'
 import { API_URL } from '../config'
+import { jsPDF } from 'jspdf'
 
 export default function AppealLetterModal({ auditId, auditData, onClose }) {
   const [step, setStep] = useState(1) // 1: Verify Info, 2: Generating, 3: Display Letter
@@ -12,7 +13,6 @@ export default function AppealLetterModal({ auditId, auditData, onClose }) {
   })
   const [letter, setLetter] = useState('')
   const [error, setError] = useState('')
-  const [copied, setCopied] = useState(false)
 
   const handleVerify = async () => {
     // Validate required fields
@@ -50,22 +50,81 @@ export default function AppealLetterModal({ auditId, auditData, onClose }) {
     }
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(letter)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
   const handleDownload = () => {
-    const blob = new Blob([letter], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `appeal-letter-${auditId}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    const doc = new jsPDF()
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 20
+    const lineHeight = 7
+    let y = margin
+
+    // Add patient info header
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'normal')
+
+    const headerLines = [
+      verifiedInfo.fullName,
+      verifiedInfo.address.split('\n').join(', '),
+      verifiedInfo.phone || '',
+      verifiedInfo.email || ''
+    ].filter(line => line.trim())
+
+    headerLines.forEach(line => {
+      doc.text(line, margin, y)
+      y += lineHeight
+    })
+
+    y += lineHeight // Extra space after header
+
+    // Add date
+    const today = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+    doc.text(today, margin, y)
+    y += lineHeight * 2
+
+    // Parse and format the letter body
+    const letterLines = letter.split('\n')
+
+    letterLines.forEach(line => {
+      // Check if we need a new page
+      if (y > pageHeight - margin) {
+        doc.addPage()
+        y = margin
+      }
+
+      if (line.trim() === '') {
+        y += lineHeight * 0.5 // Smaller space for blank lines
+        return
+      }
+
+      // Detect sections (lines that might be headers)
+      const isSectionHeader = line.match(/^(Dear|Sincerely|RE:|Subject:)/i)
+
+      if (isSectionHeader) {
+        doc.setFont('helvetica', 'bold')
+      } else {
+        doc.setFont('helvetica', 'normal')
+      }
+
+      // Wrap text to fit within margins
+      const textWidth = pageWidth - (margin * 2)
+      const splitText = doc.splitTextToSize(line, textWidth)
+
+      splitText.forEach(textLine => {
+        if (y > pageHeight - margin) {
+          doc.addPage()
+          y = margin
+        }
+        doc.text(textLine, margin, y)
+        y += lineHeight
+      })
+    })
+
+    // Save the PDF
+    doc.save(`appeal-letter-${auditId}.pdf`)
   }
 
   return (
@@ -194,36 +253,41 @@ export default function AppealLetterModal({ auditId, auditData, onClose }) {
                 <CheckCircle className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-green-900 font-medium">
-                    Your appeal letter has been generated!
+                    Your professional appeal letter has been generated!
                   </p>
                   <p className="text-sm text-green-800 mt-1">
-                    Review the letter below, copy it, or download it as a text file.
-                    Print it on professional letterhead if available, sign it, and mail it to the hospital's billing department.
+                    Download the PDF, print it, sign it, and mail it to the hospital's billing department.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <button
-                  onClick={handleCopy}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
-                >
-                  <Copy className="w-4 h-4" />
-                  {copied ? 'Copied!' : 'Copy to Clipboard'}
-                </button>
-                <button
                   onClick={handleDownload}
                   className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  Download as Text File
+                  Download PDF
                 </button>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-                <pre className="whitespace-pre-wrap font-mono text-sm text-slate-900 leading-relaxed">
-                  {letter}
-                </pre>
+              <div className="bg-white border border-slate-200 rounded-lg p-8 shadow-inner">
+                <div className="max-w-2xl mx-auto">
+                  <div className="mb-6 text-sm text-slate-700">
+                    <p>{verifiedInfo.fullName}</p>
+                    {verifiedInfo.address.split('\n').map((line, idx) => (
+                      <p key={idx}>{line}</p>
+                    ))}
+                    {verifiedInfo.phone && <p>{verifiedInfo.phone}</p>}
+                    {verifiedInfo.email && <p>{verifiedInfo.email}</p>}
+                  </div>
+                  <div className="mb-6 text-sm text-slate-700">
+                    <p>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                  <div className="whitespace-pre-wrap text-sm text-slate-900 leading-relaxed">
+                    {letter}
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end pt-4">
