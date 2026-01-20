@@ -59,6 +59,10 @@ function ResultsPage() {
   const billingErrorSavings = auditData?.savings?.billingErrors ?? totalPotentialSavings
   const charitySavings = auditData?.savings?.charityCare ?? 0
 
+  // Check if charity care status is uncertain/unknown
+  const charityConfidence = auditData?.charityAnalysis?.eligibilityCheck?.confidence
+  const isCharityStatusUncertain = charityConfidence === 'unknown' || charityConfidence === 'uncertain'
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       {/* Header */}
@@ -105,7 +109,11 @@ function ResultsPage() {
               </div>
               <div>
                 <p className="text-sm opacity-75">Charity Care Eligible</p>
-                <p className="text-2xl font-semibold">${charitySavings.toFixed(2)}</p>
+                <p className="text-2xl font-semibold">
+                  {isCharityStatusUncertain && charitySavings === 0
+                    ? 'Need more data'
+                    : `$${charitySavings.toFixed(2)}`}
+                </p>
               </div>
             </div>
           </div>
