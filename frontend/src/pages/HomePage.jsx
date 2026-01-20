@@ -60,7 +60,11 @@ function HomePage() {
         })
 
         const errorMessage = errorData.details || errorData.error || `Server error: ${response.status}`
-        throw new Error(errorMessage)
+
+        // Create error object with full details for better error detection
+        const error = new Error(errorMessage)
+        error.details = errorData.details || errorData.error
+        throw error
       }
 
       const data = await response.json()
@@ -76,16 +80,19 @@ function HomePage() {
     } catch (error) {
       console.error('Error processing bill:', error)
 
+      // Get full error message including details for better matching
+      const fullErrorMessage = error.details || error.message
+
       // Detect specific error types and provide friendly messages
       let userMessage = error.message
 
       if (error.message.includes('Failed to fetch')) {
         userMessage = 'Cannot connect to server. Please check your internet connection and try again.'
-      } else if (error.message.includes('NOT_A_MEDICAL_BILL')) {
+      } else if (fullErrorMessage.includes('NOT_A_MEDICAL_BILL')) {
         userMessage = "It looks like the file you provided isn't a medical bill that we can read. Please double-check which file you're uploading and try again.\n\nWe support:\n• Medical bills with itemized charges\n• Explanation of Benefits (EOB) from insurance\n• Hospital or clinic billing statements"
-      } else if (error.message.includes('INCOMPLETE_BILL_DATA')) {
+      } else if (fullErrorMessage.includes('INCOMPLETE_BILL_DATA')) {
         userMessage = "We could only partially read your medical bill. It may be missing key information like provider details or itemized charges. Please upload a complete billing statement."
-      } else if (error.message.includes('AI analysis failed') || error.message.includes('AI response missing')) {
+      } else if (fullErrorMessage.includes('AI analysis failed') || fullErrorMessage.includes('AI response missing')) {
         userMessage = "We had trouble reading your bill. This could happen if:\n• The image quality is too low\n• The document isn't a standard medical bill format\n• Important information is cut off\n\nPlease try uploading a clearer photo or a different page of the bill."
       }
 
