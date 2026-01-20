@@ -8,6 +8,8 @@ import auditRoutes from './routes/auditRoutes.js'
 import paymentRoutes from './routes/paymentRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import subscriptionRoutes from './routes/subscriptionRoutes.js'
+import auditRoutesEphemeral from './routes/auditRoutesEphemeral.js'
+import paymentRoutesEphemeral from './routes/paymentRoutesEphemeral.js'
 
 // Get current directory for ES6 modules
 const __filename = fileURLToPath(import.meta.url)
@@ -51,8 +53,14 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/subscription', subscriptionRoutes)
+
+// Original routes (with PHI storage)
 app.use('/api/audit', auditRoutes)
 app.use('/api/payment', paymentRoutes)
+
+// NEW: Ephemeral routes (HIPAA-compliant, NO PHI storage)
+app.use('/api/audit-ephemeral', auditRoutesEphemeral)
+app.use('/api/payment-ephemeral', paymentRoutesEphemeral)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
