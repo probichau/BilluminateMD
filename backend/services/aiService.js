@@ -248,7 +248,14 @@ CRITICAL INSTRUCTIONS:
 
     // Validate that we got the expected structure
     if (!extractedData.providerInfo || !extractedData.patientInfo || !extractedData.lineItems) {
-      throw new Error('AI response missing required fields')
+      // Check if this looks like a medical bill at all
+      const hasMinimalBillData = extractedData.lineItems && Array.isArray(extractedData.lineItems) && extractedData.lineItems.length > 0
+
+      if (!hasMinimalBillData) {
+        throw new Error('NOT_A_MEDICAL_BILL: The uploaded file does not appear to be a medical bill with line items and charges. Please upload a valid medical bill or EOB (Explanation of Benefits).')
+      }
+
+      throw new Error('INCOMPLETE_BILL_DATA: The file appears to be a medical document, but is missing key information like provider details, patient information, or itemized charges.')
     }
 
     console.log(`AI extracted ${extractedData.lineItems.length} line items from bill`)
