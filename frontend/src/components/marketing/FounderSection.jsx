@@ -8,7 +8,7 @@ export default function FounderSection() {
   const credentials = [
     {
       icon: Building2,
-      text: 'Former UCSF Healthcare IT Leadership',
+      text: 'Author and expert in Healthcare Information Privacy and Security',
     },
     {
       icon: Shield,
@@ -43,7 +43,7 @@ export default function FounderSection() {
           className="text-center"
         >
           <h2 className="font-headline text-3xl font-bold text-gray-900 sm:text-4xl">
-            Built by a Healthcare Security Expert
+            Built by a Health Tech Privacy and Security Expert
           </h2>
         </motion.div>
 
@@ -69,17 +69,17 @@ export default function FounderSection() {
                     Peter Robichau
                   </h3>
                   <p className="mt-1 text-base font-medium text-primary-600">
-                    Director of IT & Cybersecurity | Healthcare AI Industry
+                    Tech Leader: Healthcare AI Industry
                   </p>
                   <p className="mt-1 text-sm text-gray-600">
-                    CISSP | C|CISO | PMP | 2023 CISO Hall of Fame
+                    CISSP | CISO Hall of Fame
                   </p>
 
                   <blockquote className="mt-6 text-base text-gray-700 leading-relaxed border-l-4 border-primary-600 pl-4 italic">
-                    "After 20+ years protecting healthcare data at organizations like UCSF
-                    and leading health systems, I built BilluminateMD because I saw how
-                    patients were being overcharged—and how hard it was to fight back. Your
-                    data security isn't just a feature; it's my professional reputation."
+                    "After 20+ years protecting healthcare data at leading healthcare
+                    institutions, I saw how much effort went into ensuring that healthcare
+                    providers could bill as much as possible as efficiently as possible. 
+                    Patients need their own expert a, and BilluminateMD is just that."
                   </blockquote>
                 </div>
               </div>
