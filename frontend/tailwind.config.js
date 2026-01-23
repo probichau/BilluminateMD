@@ -8,23 +8,34 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          100: '#CCFBF1',
+          600: '#0D9488',
+          700: '#0F766E',
         },
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444',
+        accent: {
+          500: '#10B981',
+          600: '#059669',
+        },
+        error: {
+          500: '#EF4444',
+        },
+        warning: {
+          500: '#F59E0B',
+        },
+        gray: {
+          100: '#F3F4F6',
+          400: '#9CA3AF',
+          700: '#374151',
+          900: '#111827',
+        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'Source Sans Pro', 'system-ui', 'sans-serif'],
+        headline: ['Plus Jakarta Sans', 'Satoshi', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      backgroundImage: {
+        'gradient-trust': 'linear-gradient(135deg, #0D9488 0%, #059669 100%)',
       },
     },
   },
