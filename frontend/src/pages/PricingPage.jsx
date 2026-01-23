@@ -1,314 +1,204 @@
-/**
- * Pricing Page
- * Shows two pricing options: per-bill and annual subscription
- */
-
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { API_URL, REPORT_PRICE, SUBSCRIPTION_PRICE } from '../config'
+import { Helmet } from 'react-helmet-async'
+import { Check, Sparkles } from 'lucide-react'
+import Header from '../components/layout/Header'
+import Footer from '../components/layout/Footer'
+import Container from '../components/layout/Container'
+import Section from '../components/layout/Section'
+import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
+import { REPORT_PRICE, SUBSCRIPTION_PRICE } from '../config'
 
 export default function PricingPage() {
-  const navigate = useNavigate()
-  const { isAuthenticated, hasActiveSubscription } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-
-  async function handleSubscribe() {
-    setError('')
-    setLoading(true)
-
-    try {
-      if (!isAuthenticated) {
-        // Redirect to register with return path
-        navigate('/register', { state: { from: '/pricing' } })
-        return
-      }
-
-      // Create subscription checkout session
-      const response = await fetch(`${API_URL}/api/subscription/create-checkout`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session')
-      }
-
-      // Redirect to Stripe Checkout
-      window.location.href = data.url
-    } catch (err) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
+  const features = [
+    'Upload any medical bill',
+    'AI-powered error detection',
+    'Comparison against Medicare rates',
+    'Professional appeal letter generated',
+    'Detailed findings report',
+    'Email support',
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <Link to="/" className="text-blue-600 hover:text-blue-700 font-medium">
-          ← Back to Home
-        </Link>
-      </div>
+    <>
+      <Helmet>
+        <title>Pricing | BilluminateMD</title>
+        <meta
+          name="description"
+          content="Simple, transparent pricing for medical bill auditing. $49 per bill with no hidden fees."
+        />
+      </Helmet>
 
-      {/* Pricing Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-slate-900 mb-4">Choose Your Plan</h1>
-          <p className="text-xl text-slate-600">
-            Save money on medical bills with AI-powered auditing
-          </p>
-        </div>
-
-        {/* Active Subscription Notice */}
-        {hasActiveSubscription && (
-          <div className="max-w-2xl mx-auto mb-8 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl text-center">
-            ✅ You have an active unlimited subscription
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="max-w-2xl mx-auto mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl text-center">
-            {error}
-          </div>
-        )}
-
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Per-Bill Option */}
-          <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-slate-200">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Pay Per Bill</h3>
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-5xl font-bold text-blue-600">${REPORT_PRICE}</span>
-                <span className="text-slate-600">per bill</span>
+      <div className="min-h-screen bg-white">
+        <Header />
+        <main>
+          <Section bgColor="bg-gradient-to-b from-primary-100/30 to-white">
+            <Container>
+              <div className="max-w-4xl mx-auto text-center">
+                <h1 className="font-headline text-4xl font-bold text-gray-900 sm:text-5xl mb-6">
+                  Simple Pricing. Serious Savings.
+                </h1>
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  No percentage fees. No hidden costs. You keep 100% of your savings.
+                </p>
               </div>
-            </div>
+            </Container>
+          </Section>
 
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-slate-700">Full bill audit and error detection</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-slate-700">Charity care eligibility analysis</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-slate-700">Professional appeal letter generation</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-slate-700">No account required</span>
-              </li>
-            </ul>
+          <Section bgColor="bg-white">
+            <Container>
+              <div className="max-w-lg mx-auto">
+                {/* Main Pricing Card */}
+                <Card className="relative overflow-hidden">
+                  {/* Best value badge */}
+                  <div className="absolute top-0 right-0">
+                    <div className="bg-gradient-trust text-white px-4 py-1 text-xs font-bold rounded-bl-lg">
+                      BEST VALUE
+                    </div>
+                  </div>
 
-            <Link
-              to="/"
-              className="block w-full text-center bg-slate-600 hover:bg-slate-700 text-white font-semibold py-3 rounded-lg transition shadow-md hover:shadow-lg"
-            >
-              Upload a Bill
-            </Link>
-          </div>
+                  <div className="text-center pt-6">
+                    <h3 className="font-headline text-2xl font-bold text-gray-900">
+                      One-Time Bill Scan
+                    </h3>
+                    <div className="mt-4 flex items-baseline justify-center gap-2">
+                      <span className="font-headline text-5xl font-bold text-primary-600">
+                        ${REPORT_PRICE.toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-600">One-time payment, per bill</p>
+                  </div>
 
-          {/* Subscription Option */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 border-2 border-blue-500 relative">
-            {/* Best Value Badge */}
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span className="bg-yellow-400 text-yellow-900 font-bold px-4 py-1 rounded-full text-sm shadow-md">
-                BEST VALUE
-              </span>
-            </div>
+                  <ul className="mt-8 space-y-4">
+                    {features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <Check className="h-5 w-5 text-accent-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-base text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">Unlimited Annual</h3>
-              <div className="flex items-baseline justify-center gap-2">
-                <span className="text-5xl font-bold text-white">${SUBSCRIPTION_PRICE}</span>
-                <span className="text-blue-100">per year</span>
+                  <div className="mt-8">
+                    <Button to="/app" size="lg" className="w-full">
+                      Scan My Bill Now
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Value comparison */}
+                <div className="mt-8 text-center">
+                  <div className="bg-gray-50 rounded-lg p-6">
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      <strong className="text-gray-900">
+                        Medical billing advocates charge 25-50% of savings.
+                      </strong>
+                      <br />
+                      On a $5,000 error, that's $1,250-$2,500.
+                      <br />
+                      <span className="text-primary-600 font-semibold">
+                        You pay ${REPORT_PRICE.toFixed(2)}. Period.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Coming soon tier */}
+                <div className="mt-12">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <div className="inline-flex items-center gap-2 text-primary-600 mb-3">
+                      <Sparkles className="h-5 w-5" />
+                      <span className="text-sm font-bold uppercase tracking-wide">
+                        Coming Soon
+                      </span>
+                    </div>
+                    <h3 className="font-headline text-xl font-bold text-gray-900 mb-2">
+                      Continuous Monitoring
+                    </h3>
+                    <div className="text-2xl font-bold text-gray-900 mb-3">
+                      ${SUBSCRIPTION_PRICE.toFixed(2)}
+                      <span className="text-base font-normal text-gray-600">/month</span>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-4">
+                      Connect your insurance via secure API for automatic EOB monitoring. Like
+                      Rocket Money for healthcare.
+                    </p>
+                    <Button variant="secondary" size="md" className="w-full" disabled>
+                      Join Waitlist
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <p className="text-blue-100 text-sm mt-2">Save over 70% vs. 4+ bills</p>
-            </div>
+            </Container>
+          </Section>
 
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-white font-medium">Unlimited bill audits for 1 year</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-white">All per-bill features included</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-white">Instant report unlocking</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-yellow-300 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                <span className="text-white">Priority support</span>
-              </li>
-            </ul>
+          {/* FAQ Section */}
+          <Section bgColor="bg-gray-50">
+            <Container>
+              <div className="max-w-3xl mx-auto">
+                <h2 className="font-headline text-3xl font-bold text-gray-900 mb-8 text-center">
+                  Pricing FAQs
+                </h2>
 
-            <button
-              onClick={handleSubscribe}
-              disabled={loading || hasActiveSubscription}
-              className="w-full bg-white hover:bg-blue-50 disabled:bg-slate-300 text-blue-600 font-semibold py-3 rounded-lg transition shadow-md hover:shadow-lg"
-            >
-              {hasActiveSubscription
-                ? 'Already Subscribed'
-                : loading
-                  ? 'Loading...'
-                  : isAuthenticated
-                    ? 'Subscribe Now'
-                    : 'Sign Up & Subscribe'}
-            </button>
+                <div className="space-y-6">
+                  <Card>
+                    <h3 className="font-headline text-lg font-bold text-gray-900 mb-2">
+                      What happens if no errors are found?
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      If we don't find any billing errors, you'll receive a report confirming
+                      your bill appears accurate. Unfortunately, we cannot offer refunds for
+                      accurate bills, as the analysis work has been completed.
+                    </p>
+                  </Card>
 
-            <p className="text-blue-100 text-xs text-center mt-4">
-              {!isAuthenticated && 'Account required • '}Cancel anytime
-            </p>
-          </div>
-        </div>
+                  <Card>
+                    <h3 className="font-headline text-lg font-bold text-gray-900 mb-2">
+                      How is this different from billing advocates?
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      Traditional billing advocates charge 25-50% of whatever they save you. On
+                      a $5,000 error, that's $1,250-$2,500 in fees. We charge a flat $
+                      {REPORT_PRICE.toFixed(2)} regardless of how much we find. You keep 100% of
+                      your savings.
+                    </p>
+                  </Card>
 
-        {/* FAQ Section */}
-        <div className="max-w-3xl mx-auto mt-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">
-            Frequently Asked Questions
-          </h2>
+                  <Card>
+                    <h3 className="font-headline text-lg font-bold text-gray-900 mb-2">
+                      Can I use this for multiple bills?
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      Yes! Each bill requires a separate ${REPORT_PRICE.toFixed(2)} payment. If
+                      you have multiple bills to review regularly, join the waitlist for our
+                      upcoming monthly monitoring subscription.
+                    </p>
+                  </Card>
 
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="font-semibold text-slate-900 mb-2">
-                Who can use the unlimited subscription?
-              </h3>
-              <p className="text-slate-700">
-                The unlimited subscription is for bills where the patient name matches your
-                registered account name. We use intelligent name matching (e.g., "Andy" matches
-                "Andrew", "Beth" matches "Elizabeth").
-              </p>
-            </div>
+                  <Card>
+                    <h3 className="font-headline text-lg font-bold text-gray-900 mb-2">
+                      Do I need an account?
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      No account is required! Simply upload your bill, pay the one-time fee, and
+                      receive your analysis and appeal letter immediately.
+                    </p>
+                  </Card>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="font-semibold text-slate-900 mb-2">
-                Can I audit bills for family members?
-              </h3>
-              <p className="text-slate-700">
-                The subscription only works for bills matching your registered name. For family
-                members' bills, use the pay-per-bill option at ${REPORT_PRICE} each.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <h3 className="font-semibold text-slate-900 mb-2">Can I cancel my subscription?</h3>
-              <p className="text-slate-700">
-                Yes, you can cancel anytime. Your benefits continue until the end of your current
-                billing period.
-              </p>
-            </div>
-          </div>
-        </div>
+                  <Card>
+                    <h3 className="font-headline text-lg font-bold text-gray-900 mb-2">
+                      What payment methods do you accept?
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      We accept all major credit cards (Visa, Mastercard, American Express,
+                      Discover) through our secure payment processor, Stripe.
+                    </p>
+                  </Card>
+                </div>
+              </div>
+            </Container>
+          </Section>
+        </main>
+        <Footer />
       </div>
-    </div>
+    </>
   )
 }

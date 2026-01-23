@@ -22,8 +22,8 @@ export const ACCEPTED_FILE_TYPES = {
 }
 
 // Payment amounts
-export const REPORT_PRICE = 29.99 // Per bill
-export const SUBSCRIPTION_PRICE = 99.97 // Annual unlimited
+export const REPORT_PRICE = 49.00 // Per bill
+export const SUBSCRIPTION_PRICE = 14.99 // Monthly (coming soon)
 
 export default {
   API_URL,
