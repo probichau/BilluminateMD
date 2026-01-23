@@ -11,7 +11,7 @@ export default function Footer() {
     ],
     company: [
       { name: 'About', href: '/about' },
-      { name: 'Contact', href: 'mailto:support@billuminate.com' },
+      { name: 'Support', href: '/support' },
     ],
     legal: [
       { name: 'Privacy Policy', href: '/privacy' },

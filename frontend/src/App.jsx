@@ -14,6 +14,7 @@ import AboutPage from './pages/AboutPage'
 import FAQPage from './pages/FAQPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
+import SupportPage from './pages/SupportPage'
 import './App.css'
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
+            <Route path="/support" element={<SupportPage />} />
 
             {/* Application Pages */}
             <Route path="/app" element={<HomePage />} />
