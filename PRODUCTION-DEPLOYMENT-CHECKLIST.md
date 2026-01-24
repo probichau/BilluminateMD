@@ -328,10 +328,27 @@ From decision to deploy to fully operational production:
 
 Before running ANY production deployment commands:
 
-- [ ] All staging tests passed
+### Email & Support System:
 - [ ] DKIM verification successful
 - [ ] Support emails working perfectly
+- [ ] Customer email collection tested (payment confirmation emails sent)
+- [ ] Email deliverability verified (inbox, not spam)
+- [ ] Support ticket correlation working (can lookup audits by email)
+
+### Customer Experience:
+- [ ] Customer email collected during payment
+- [ ] Payment confirmation emails sent automatically
+- [ ] Report links in emails work correctly
+- [ ] Customer can access report after payment
+
+### Technical Requirements:
+- [ ] All staging tests passed
+- [ ] Database migration completed (customer_email column)
 - [ ] No known bugs or issues
+- [ ] Backend SES credentials configured
+- [ ] Frontend Amplify deployed from staging
+
+### Business Requirements:
 - [ ] Team informed of deployment
 - [ ] Backup plan ready
 - [ ] Monitoring tools ready
@@ -341,6 +358,31 @@ Before running ANY production deployment commands:
 
 ---
 
-**Current Status:** Waiting for staging verification
-**Next Step:** Complete staging testing, then proceed with production deployment
-**Estimated Production Deployment:** After staging verification (TBD)
+**Current Status:** Customer email collection implemented ✅
+**Blocking Issues Resolved:** Customer contact information now collected during payment
+**Next Step:** Test email collection on staging, verify deliverability
+**Production Deployment:** After customer email system verified on staging
+
+---
+
+## Recent Changes (2026-01-24)
+
+### ✅ Customer Email Collection Implemented
+
+**Problem:** Pay-per-use model had no way to contact customers or correlate support tickets with audits.
+
+**Solution:**
+- Added `customer_email` column to audits table
+- Updated payment modal to collect email before card details
+- Implemented automatic payment confirmation emails via SES
+- Enabled support team to lookup audits by customer email
+
+**Files Changed:**
+- `backend/migrations/004_add_customer_email.sql` (new)
+- `backend/services/emailService.js` (new)
+- `backend/services/databaseService.js` (updated)
+- `backend/controllers/auditController.js` (updated)
+- `frontend/src/components/PaymentModal.jsx` (updated)
+
+**Testing Required:**
+See `CUSTOMER-EMAIL-TESTING-GUIDE.md` for complete testing procedures.
