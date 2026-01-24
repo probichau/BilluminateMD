@@ -11,7 +11,7 @@
 
 import { analyzeBillWithAI } from '../services/aiService.js'
 import { detectErrors } from '../services/errorDetectionService.js'
-import { analyzeCharityCare, checkCharityEligibility } from '../services/charityCareService.js'
+import { analyzeCharityCare, isCharityEligibleHospital } from '../services/charityCareService.js'
 import { generateAppealLetter } from '../services/appealLetterService.js'
 import { createSession, getSession, isSessionPaid } from '../services/sessionService.js'
 
@@ -67,7 +67,7 @@ export async function analyzeBillEphemeral(req, res) {
 
     // Step 3: Check charity care eligibility (without income - preliminary)
     console.log('🏥 Checking charity care eligibility...')
-    const preliminaryCharityCheck = await checkCharityEligibility(
+    const preliminaryCharityCheck = isCharityEligibleHospital(
       extractedData.provider_info
     )
 
