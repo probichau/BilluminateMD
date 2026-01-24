@@ -41,11 +41,18 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
   const elements = useElements()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [email, setEmail] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!stripe || !elements) {
+      return
+    }
+
+    // Validate email
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address')
       return
     }
 
@@ -88,7 +95,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
       }
 
       if (paymentIntent.status === 'succeeded') {
-        // Update audit as paid on backend
+        // Update audit as paid on backend and send customer email
         await fetch(`${API_URL}/api/audit/${auditId}/unlock`, {
           method: 'POST',
           headers: {
@@ -96,6 +103,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
           },
           body: JSON.stringify({
             paymentIntentId: paymentIntent.id,
+            customerEmail: email,
           }),
         })
 
@@ -120,6 +128,24 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
         </div>
 
         <div className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your.email@example.com"
+              required
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              We'll send your report and receipt to this email
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Card Information

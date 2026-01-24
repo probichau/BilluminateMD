@@ -263,13 +263,29 @@ export async function getAuditResults(req, res) {
 export async function unlockReport(req, res) {
   try {
     const { auditId } = req.params
-    const { paymentIntentId } = req.body
+    const { paymentIntentId, customerEmail } = req.body
 
     if (!paymentIntentId) {
       return res.status(400).json({ error: 'Payment intent ID required' })
     }
 
-    await markAuditAsPaid(auditId, paymentIntentId)
+    // Store customer email with payment
+    await markAuditAsPaid(auditId, paymentIntentId, customerEmail)
+
+    // Get audit details for confirmation email
+    const audit = await getAuditById(auditId)
+
+    // Send confirmation email if customer email provided
+    if (customerEmail && audit) {
+      try {
+        const { sendPaymentConfirmation } = await import('../services/emailService.js')
+        await sendPaymentConfirmation(customerEmail, audit)
+        console.log(`✅ Payment confirmation email sent to ${customerEmail}`)
+      } catch (emailError) {
+        // Log error but don't fail the unlock request
+        console.error('⚠️  Failed to send confirmation email:', emailError.message)
+      }
+    }
 
     res.json({
       success: true,

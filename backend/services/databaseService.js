@@ -204,9 +204,9 @@ export async function getAuditById(auditId) {
 }
 
 /**
- * Mark audit as paid
+ * Mark audit as paid and store customer email
  */
-export async function markAuditAsPaid(auditId, paymentIntentId) {
+export async function markAuditAsPaid(auditId, paymentIntentId, customerEmail = null) {
   const client = await getPool().connect()
 
   try {
@@ -214,12 +214,13 @@ export async function markAuditAsPaid(auditId, paymentIntentId) {
       `UPDATE audits
        SET is_paid = TRUE,
            payment_intent_id = $1,
+           customer_email = $2,
            updated_at = NOW()
-       WHERE audit_id = $2`,
-      [paymentIntentId, auditId]
+       WHERE audit_id = $3`,
+      [paymentIntentId, customerEmail, auditId]
     )
 
-    console.log(`Audit ${auditId} marked as paid`)
+    console.log(`Audit ${auditId} marked as paid${customerEmail ? ` for ${customerEmail}` : ''}`)
   } catch (error) {
     console.error('Error marking audit as paid:', error)
     throw error
