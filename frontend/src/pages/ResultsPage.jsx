@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AlertCircle, Lock, CheckCircle, DollarSign, ArrowLeft, FileText } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
 import PaymentChoiceModal from '../components/PaymentChoiceModal'
 import AppealLetterModal from '../components/AppealLetterModal'
 import { API_URL } from '../config'
@@ -9,7 +8,6 @@ import { API_URL } from '../config'
 function ResultsPage() {
   const { auditId } = useParams()
   const navigate = useNavigate()
-  const { hasActiveSubscription } = useAuth()
   const [auditData, setAuditData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showPaymentModal, setShowPaymentModal] = useState(false)

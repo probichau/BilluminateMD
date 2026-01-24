@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { FileUp, Camera, FileText } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { FileUp, Camera, FileText, Home } from 'lucide-react'
 import UploadZone from '../components/UploadZone'
 import ProcessingModal from '../components/ProcessingModal'
 import { API_URL } from '../config'
@@ -10,7 +9,6 @@ function HomePage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStage, setProcessingStage] = useState('')
   const navigate = useNavigate()
-  const { isAuthenticated, user, hasActiveSubscription, logout, getAuthHeaders } = useAuth()
 
   const handleFileUpload = async (file) => {
     setIsProcessing(true)
@@ -37,10 +35,9 @@ function HomePage() {
       const formData = new FormData()
       formData.append('bill', file)
 
-      // Send to backend API with optional auth headers
+      // Send to backend API (no auth required for pay-per-use model)
       const response = await fetch(`${API_URL}/api/audit/upload`, {
         method: 'POST',
-        headers: getAuthHeaders(),
         body: formData,
       })
 
@@ -102,45 +99,21 @@ function HomePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Top Navigation */}
-      <div className="flex justify-end items-center mb-8">
-        <div className="flex gap-3">
-          {isAuthenticated ? (
-            <>
-              <div className="text-sm text-slate-600">
-                {user?.email}
-                {hasActiveSubscription && (
-                  <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                    Unlimited
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={logout}
-                className="text-slate-600 hover:text-slate-900 font-medium"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="text-slate-600 hover:text-slate-900 font-medium"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition"
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
+    <div className="min-h-screen bg-gray-50">
+      {/* Simple Top Navigation */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-4xl">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+          >
+            <Home className="w-5 h-5" />
+            <span className="font-medium">Back to Home</span>
+          </button>
         </div>
       </div>
+
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
 
       {/* Header */}
       <header className="text-center mb-12">
@@ -186,6 +159,7 @@ function HomePage() {
       {isProcessing && (
         <ProcessingModal stage={processingStage} />
       )}
+    </div>
     </div>
   )
 }

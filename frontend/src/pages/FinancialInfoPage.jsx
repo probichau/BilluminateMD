@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../config'
 
 function FinancialInfoPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { auditId, providerName, patientResponsibility } = location.state || {}
-  const { getAuthHeaders } = useAuth()
 
   const [householdIncome, setHouseholdIncome] = useState('')
   const [householdSize, setHouseholdSize] = useState('')
@@ -24,7 +22,6 @@ function FinancialInfoPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeaders(),
         },
         body: JSON.stringify({
           householdIncome: parseFloat(householdIncome),
