@@ -17,13 +17,14 @@ Adding these DNS records will:
 
 ## Quick Summary
 
-You'll add **6-7 DNS records** to Route 53:
+You'll add **5 DNS records** to Route 53:
 1. SPF (1 TXT record)
 2. DMARC (1 TXT record)
-3. ImprovMX DKIM (1 TXT record)
-4. AWS SES DKIM (3 CNAME records)
+3. AWS SES DKIM (3 CNAME records)
 
-**Total time:** 15-20 minutes
+**Note:** You do NOT need ImprovMX DKIM (requires paid tier). AWS SES DKIM is sufficient since SES sends your support emails.
+
+**Total time:** 10-15 minutes
 
 ---
 
@@ -67,40 +68,9 @@ You'll add **6-7 DNS records** to Route 53:
 
 ---
 
-## Step 3: Get ImprovMX DKIM Record
+## Step 3: Set Up AWS SES DKIM
 
-### ImprovMX Dashboard:
-
-1. Go to: https://improvmx.com/dashboard/
-2. Click your domain: **billuminate.com**
-3. Find **"DKIM"** or **"Authentication"** section
-4. Click **"Enable DKIM"** (if not already enabled)
-5. You'll see DNS records like:
-
-   ```
-   Host/Name: improvmx._domainkey
-   Type: TXT
-   Value: v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBA... (very long string)
-   ```
-
-6. **Copy the entire Value** (it's very long, make sure to get all of it!)
-
-### Add to Route 53:
-
-1. Go back to Route 53 → billuminate.com
-2. Click **"Create record"**
-3. Enter:
-   ```
-   Record name: improvmx._domainkey
-   Record type: TXT
-   Value: (paste the DKIM value from ImprovMX - include quotes!)
-   TTL: 300
-   ```
-4. Click **"Create records"**
-
----
-
-## Step 4: Set Up AWS SES DKIM
+**Why skip ImprovMX DKIM?** ImprovMX only handles INCOMING mail forwarding. Your support emails are SENT by AWS SES, so only AWS SES DKIM is needed for email authentication.
 
 ### Enable DKIM in AWS SES:
 
@@ -158,7 +128,7 @@ For **each** of the 3 CNAME records:
 
 ---
 
-## Step 5: Verify Everything Works
+## Step 4: Verify Everything Works
 
 ### Check DNS Propagation (wait 5-15 minutes after adding):
 
@@ -168,9 +138,6 @@ dig billuminate.com TXT +short | grep spf1
 
 # Check DMARC
 dig _dmarc.billuminate.com TXT +short
-
-# Check ImprovMX DKIM
-dig improvmx._domainkey.billuminate.com TXT +short
 
 # Check AWS SES DKIM (use your actual record name)
 dig abcdef123456._domainkey.billuminate.com CNAME +short
@@ -182,13 +149,6 @@ dig abcdef123456._domainkey.billuminate.com CNAME +short
 2. Click **"Authentication"** tab
 3. DKIM status should show: **"Successful"** (green checkmark)
 4. If still "Pending", wait a few more minutes and refresh
-
-### Check ImprovMX Dashboard:
-
-1. Go to ImprovMX dashboard
-2. Your domain should show:
-   - ✅ DKIM: Enabled (green check)
-   - ✅ SPF: Configured
 
 ### Send Test Email:
 
@@ -217,7 +177,6 @@ billuminate.com          MX      10 mx1.improvmx.com
 # New Authentication Records
 billuminate.com          TXT     "v=spf1 include:spf.improvmx.com include:amazonses.com ~all"
 _dmarc.billuminate.com   TXT     "v=DMARC1; p=none; rua=mailto:support@billuminate.com"
-improvmx._domainkey      TXT     "v=DKIM1; k=rsa; p=MIGfMA0G..." (long string)
 abc123._domainkey        CNAME   abc123.dkim.amazonses.com
 def456._domainkey        CNAME   def456.dkim.amazonses.com
 ghi789._domainkey        CNAME   ghi789.dkim.amazonses.com
@@ -243,12 +202,6 @@ ghi789._domainkey        CNAME   ghi789.dkim.amazonses.com
 - Check for typos in record names (should end with `._domainkey`)
 - Remove `.billuminate.com` from record name if Route 53 added it twice
 - Wait 15-30 minutes
-
-**Problem:** ImprovMX DKIM not working
-**Solution:**
-- Verify the full DKIM value was copied (it's very long!)
-- Make sure value is in quotes: `"v=DKIM1; k=rsa; p=..."`
-- Check ImprovMX dashboard for specific instructions
 
 ### DMARC Issues
 
