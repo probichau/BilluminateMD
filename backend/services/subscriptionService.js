@@ -40,7 +40,7 @@ async function query(text, params) {
 // Pricing configuration
 export const PRICING = {
   PER_BILL: {
-    amount: 2999, // $29.99 in cents
+    amount: 4900, // $49.00 in cents
     currency: 'usd',
     type: 'one_time',
   },

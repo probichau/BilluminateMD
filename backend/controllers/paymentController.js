@@ -24,8 +24,8 @@ export async function createPaymentIntent(req, res) {
       return res.status(400).json({ error: 'Audit ID required' })
     }
 
-    // Fixed price: $29.99 per bill (in cents)
-    const amount = 2999
+    // Fixed price: $49.00 per bill (in cents)
+    const amount = 4900
 
     // Create payment intent
     const stripeClient = getStripeClient()

@@ -96,7 +96,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
 
       if (paymentIntent.status === 'succeeded') {
         // Update audit as paid on backend and send customer email
-        await fetch(`${API_URL}/api/audit/${auditId}/unlock`, {
+        const unlockResponse = await fetch(`${API_URL}/api/audit/${auditId}/unlock`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -106,6 +106,13 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
             customerEmail: email,
           }),
         })
+
+        if (!unlockResponse.ok) {
+          const errorData = await unlockResponse.json()
+          setError(errorData.error || 'Failed to unlock report')
+          setLoading(false)
+          return
+        }
 
         onSuccess()
       }

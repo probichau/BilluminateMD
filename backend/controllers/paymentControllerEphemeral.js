@@ -45,8 +45,8 @@ export async function createPaymentIntentEphemeral(req, res) {
       })
     }
 
-    // Default to $29.99 if not specified
-    const paymentAmount = amount || 2999 // cents
+    // Default to $49.00 if not specified
+    const paymentAmount = amount || 4900 // cents
 
     console.log(`💳 Creating payment intent for session: ${sessionId}`)
     console.log(`   Amount: $${(paymentAmount / 100).toFixed(2)}`)

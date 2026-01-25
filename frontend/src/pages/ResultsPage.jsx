@@ -172,7 +172,7 @@ function ResultsPage() {
                 Unlock Report
               </button>
               <p className="text-slate-500 text-sm mt-3">
-                Starting at $29.99
+                Starting at $49.00
               </p>
             </div>
           </div>
