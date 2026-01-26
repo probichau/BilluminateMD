@@ -43,7 +43,7 @@ export default function FounderSection() {
           className="text-center"
         >
           <h2 className="font-headline text-3xl font-bold text-gray-900 sm:text-4xl">
-            Built by a Health Tech Privacy and Security Expert
+            Built by a Health TechPrivacy and Security Expert
           </h2>
         </motion.div>
 
@@ -79,7 +79,8 @@ export default function FounderSection() {
                     "After 20+ years protecting healthcare data at leading healthcare
                     institutions, I saw how much effort went into ensuring that healthcare
                     providers could bill as much as possible as efficiently as possible. 
-                    Patients need their own expert a, and BilluminateMD is just that."
+                    80% of medical bills contain errors, but what do you do?
+                    Patients need an advocate, and BilluminateMD is yours."
                   </blockquote>
                 </div>
               </div>
