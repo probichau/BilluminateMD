@@ -243,6 +243,7 @@ The BilluminateMD Team
     Destination: {
       ToAddresses: [customerEmail],
     },
+    ReplyToAddresses: [FROM_EMAIL],
     Message: {
       Subject: {
         Data: `✅ Your BilluminateMD Report is Ready - $${totalSavings.toFixed(2)} in Potential Savings`,
@@ -269,5 +270,136 @@ The BilluminateMD Team
   } catch (error) {
     console.error('❌ Failed to send payment confirmation email:', error)
     throw error
+  }
+}
+
+/**
+ * Send admin notification email for new purchase
+ * @param {string} customerEmail - Customer's email address
+ * @param {object} audit - Audit object from database
+ * @param {string} paymentIntentId - Stripe payment intent ID
+ */
+export async function sendAdminPurchaseNotification(customerEmail, audit, paymentIntentId) {
+  const adminEmail = process.env.ADMIN_EMAIL || 'bernard@probichau.com'
+  const reportUrl = `${APP_URL}/results/${audit.auditId}`
+  const totalSavings = audit.savings?.total || 0
+  const providerName = audit.providerInfo?.facilityName || 'Unknown Provider'
+  const patientName = audit.patientInfo?.name || 'Unknown Patient'
+  const stripeUrl = `https://dashboard.stripe.com/${process.env.NODE_ENV === 'production' ? '' : 'test/'}payments/${paymentIntentId}`
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: monospace; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #10b981; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .section { background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 4px solid #3b82f6; }
+    .amount { font-size: 24px; font-weight: bold; color: #10b981; }
+    a { color: #3b82f6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin:0;">💰 New Purchase - $49.00</h2>
+    </div>
+
+    <div class="section">
+      <h3>Transaction Details</h3>
+      <p><strong>Amount:</strong> <span class="amount">$49.00</span></p>
+      <p><strong>Payment ID:</strong> ${paymentIntentId}</p>
+      <p><strong>Stripe Dashboard:</strong> <a href="${stripeUrl}">View Transaction</a></p>
+      <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+    </div>
+
+    <div class="section">
+      <h3>Customer Information</h3>
+      <p><strong>Email:</strong> ${customerEmail}</p>
+      <p><strong>Patient:</strong> ${patientName}</p>
+    </div>
+
+    <div class="section">
+      <h3>Report Details</h3>
+      <p><strong>Report ID:</strong> ${audit.auditId}</p>
+      <p><strong>Provider:</strong> ${providerName}</p>
+      <p><strong>Potential Savings:</strong> $${totalSavings.toFixed(2)}</p>
+      <p><strong>Report URL:</strong> <a href="${reportUrl}">${reportUrl}</a></p>
+    </div>
+
+    <div class="section">
+      <h3>Quick Actions</h3>
+      <p>• <a href="${stripeUrl}">View in Stripe Dashboard</a></p>
+      <p>• <a href="${reportUrl}">View Customer's Report</a></p>
+      <p>• Reply to this email to contact customer</p>
+    </div>
+  </div>
+</body>
+</html>`
+
+  const textBody = `
+🎉 NEW PURCHASE - $49.00
+
+TRANSACTION DETAILS
+-------------------
+Amount: $49.00
+Payment ID: ${paymentIntentId}
+Stripe: ${stripeUrl}
+Date: ${new Date().toLocaleString()}
+
+CUSTOMER INFO
+-------------
+Email: ${customerEmail}
+Patient: ${patientName}
+
+REPORT DETAILS
+--------------
+Report ID: ${audit.auditId}
+Provider: ${providerName}
+Potential Savings: $${totalSavings.toFixed(2)}
+Report URL: ${reportUrl}
+
+QUICK ACTIONS
+-------------
+- View in Stripe: ${stripeUrl}
+- View Report: ${reportUrl}
+- Reply to contact customer
+`
+
+  const params = {
+    Source: FROM_EMAIL,
+    Destination: {
+      ToAddresses: [adminEmail],
+    },
+    ReplyToAddresses: [customerEmail],
+    Message: {
+      Subject: {
+        Data: `💰 New Purchase: $49.00 - ${providerName}`,
+        Charset: 'UTF-8',
+      },
+      Body: {
+        Text: {
+          Data: textBody,
+          Charset: 'UTF-8',
+        },
+        Html: {
+          Data: htmlBody,
+          Charset: 'UTF-8',
+        },
+      },
+    },
+  }
+
+  try {
+    const command = new SendEmailCommand(params)
+    const result = await sesClient.send(command)
+    console.log(`✅ Admin notification sent to ${adminEmail}`, result.MessageId)
+    return result
+  } catch (error) {
+    console.error('❌ Failed to send admin notification:', error)
+    // Don't throw - admin notification failure shouldn't break the purchase flow
+    return null
   }
 }

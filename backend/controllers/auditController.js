@@ -278,9 +278,15 @@ export async function unlockReport(req, res) {
     // Send confirmation email if customer email provided
     if (customerEmail && audit) {
       try {
-        const { sendPaymentConfirmation } = await import('../services/emailService.js')
+        const { sendPaymentConfirmation, sendAdminPurchaseNotification } = await import('../services/emailService.js')
+
+        // Send customer confirmation
         await sendPaymentConfirmation(customerEmail, audit)
         console.log(`✅ Payment confirmation email sent to ${customerEmail}`)
+
+        // Send admin notification
+        await sendAdminPurchaseNotification(customerEmail, audit, paymentIntentId)
+        console.log(`✅ Admin notification sent for payment ${paymentIntentId}`)
       } catch (emailError) {
         // Log error but don't fail the unlock request
         console.error('⚠️  Failed to send confirmation email:', emailError.message)
