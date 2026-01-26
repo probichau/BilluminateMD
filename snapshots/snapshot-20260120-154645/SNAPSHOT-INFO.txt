@@ -1,0 +1,17 @@
+Snapshot Date: 20260120-154645
+Git Commit: 16479e98d79014bb01aec7b696d604e4ae6583cb
+Git Tag: snapshot-before-hipaa-20260120-154645
+Branch: staging
+
+Reason: Pre-HIPAA architecture migration snapshot (AUTOMATED)
+
+Contents:
+- git-info.txt (commit, tag, branch)
+- codebase-backup.tar.gz (full code archive, 331K)
+- staging-pre-hipaa-backup.zip (deployment package, 96K)
+- database-schema-backup.sql (automated database export)
+- env-backup-staging.txt (automated environment variables)
+- ROLLBACK.sh (automated rollback script)
+
+Created by: create-snapshot-automated.sh
+Automation: Full (git, code, database, env vars, deployment)

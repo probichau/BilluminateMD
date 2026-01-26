@@ -1,0 +1,4 @@
+-- audits table not found
+-- intermediate_audits table not found
+-- users table not found
+-- subscriptions table not found

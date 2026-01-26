@@ -68,7 +68,7 @@ cd frontend
 npm install
 
 # Install backend dependencies
-cd ../backend
+cd ../backendgit remote add origin 
 npm install
 ```
 

@@ -1,0 +1,9 @@
+Snapshot Date: 20260120-154617
+Branch: staging
+Commit: 16479e98d79014bb01aec7b696d604e4ae6583cb
+Tag: snapshot-before-hipaa-20260120-154617
+
+To rollback:
+  git checkout 16479e98d79014bb01aec7b696d604e4ae6583cb
+  # or
+  git checkout snapshot-before-hipaa-20260120-154617

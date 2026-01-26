@@ -11,6 +11,7 @@ import subscriptionRoutes from './routes/subscriptionRoutes.js'
 import auditRoutesEphemeral from './routes/auditRoutesEphemeral.js'
 import supportRoutes from './routes/support.js'
 import paymentRoutesEphemeral from './routes/paymentRoutesEphemeral.js'
+import { basicAuthMiddleware } from './middleware/basicAuthMiddleware.js'
 
 // Get current directory for ES6 modules
 const __filename = fileURLToPath(import.meta.url)
@@ -45,6 +46,9 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(passport.initialize())
+
+// Apply Basic Auth for staging (before routes, after body parsing)
+app.use(basicAuthMiddleware)
 
 // Health check
 app.get('/health', (req, res) => {

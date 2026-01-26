@@ -42,7 +42,21 @@ backend/.elasticbeanstalk/*
 !backend/.elasticbeanstalk/*.global.yml
 backend/set-env-vars.sh
 backend/*.pid
+*.zip
 
 # Test files
 backend/test-*.js
 backend/check-*.js
+
+# Staging-specific setup scripts (not for production)
+backend/setup-staging-db.js
+backend/setup-staging-env.sh
+backend/setup-production-env.sh
+
+# Internal documentation (deployment/setup guides)
+SETUP-S3-BUCKET.md
+SETUP-STAGING-S3-BUCKET.md
+PRODUCTION-DEPLOYMENT.md
+backend/FIX-DATABASE-CONNECTION.md
+backend/DATABASE-SETUP-COMPLETE.md
+backend/AUTH-AND-SUBSCRIPTION-SYSTEM.md

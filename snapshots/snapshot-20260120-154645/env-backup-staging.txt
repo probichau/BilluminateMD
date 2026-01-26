@@ -1,0 +1,27 @@
+# Environment Variables Backup
+# Created: 20260120-154645
+# IMPORTANT: This file contains sensitive information. Keep secure.
+
+# ============================================================================
+# ELASTIC BEANSTALK (Backend - Staging)
+# ============================================================================
+
+# AWS CLI not available during snapshot
+# Please manually export from AWS Console:
+
+# Elastic Beanstalk (Backend):
+# Go to: EB Console → billuminate-staging → Configuration → Software
+DATABASE_URL=
+AWS_S3_BUCKET=
+STRIPE_SECRET_KEY=
+ANTHROPIC_API_KEY=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+JWT_SECRET=
+NODE_ENV=
+PORT=
+
+# AWS Amplify (Frontend):
+# Go to: Amplify Console → staging branch → Environment variables
+VITE_API_URL=
+VITE_STRIPE_PUBLIC_KEY=
