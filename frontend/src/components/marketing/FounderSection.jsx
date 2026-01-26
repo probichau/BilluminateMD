@@ -66,7 +66,14 @@ export default function FounderSection() {
                 {/* Founder bio */}
                 <div>
                   <h3 className="font-headline text-2xl font-bold text-gray-900">
-                    Peter Robichau
+                    <a
+                      href="https://robichau.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-primary-600 transition-colors"
+                    >
+                      Peter Robichau
+                    </a>
                   </h3>
                   <p className="mt-1 text-base font-medium text-primary-600">
                     Tech Leader: Healthcare AI Industry
