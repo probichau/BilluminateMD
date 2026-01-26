@@ -84,12 +84,16 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
         {
           payment_method: {
             card: elements.getElement(CardElement),
+            billing_details: {
+              email: email,
+            },
           },
         }
       )
 
       if (stripeError) {
-        setError(stripeError.message)
+        console.error('Stripe payment error:', stripeError)
+        setError(stripeError.message || 'Payment failed. Please try again.')
         setLoading(false)
         return
       }
@@ -160,6 +164,7 @@ function PaymentForm({ auditId, amount, onSuccess, onClose }) {
             <div className="border border-slate-300 rounded-lg p-3">
               <CardElement
                 options={{
+                  hidePostalCode: false,
                   style: {
                     base: {
                       fontSize: '16px',
