@@ -99,41 +99,12 @@ export default function Footer() {
 
           {/* Bottom bar */}
           <div className="mt-12 pt-8 border-t border-gray-800">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              {/* Left side - Navigation menu */}
-              <nav className="flex flex-wrap justify-center md:justify-start gap-4 text-sm">
-                <Link to="/" className="text-gray-400 hover:text-white transition-colors">
-                  Home
-                </Link>
-                <Link to="/support" className="text-gray-400 hover:text-white transition-colors">
-                  Contact
-                </Link>
-                <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                  Privacy
-                </Link>
-                <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
-                  Terms
-                </Link>
-              </nav>
-
-              {/* Right side - Copyright and disclaimer */}
-              <div className="text-center md:text-right">
-                <p className="text-sm text-gray-400">
-                  © {new Date().getFullYear()} BilluminateMD. All rights reserved.
-                </p>
-                <p className="text-xs text-gray-500 mt-2 max-w-2xl leading-relaxed">
-                  By accessing, viewing, scrolling through, skimming, or otherwise perceiving the contents of this website (hereinafter referred to as "BilluminateMD," "this digital domicile," or "the internet equivalent of a medical billing advocate's office"), you, the Visitor, have entered into an unspoken but deeply heartfelt arrangement wherein the Proprietor hereby extends sincere and non-revocable appreciation for your presence.
-                  <br /><br />
-                  <strong>WHEREAS</strong>, the internet is vast and largely full of things that are not this website; and
-                  <br />
-                  <strong>WHEREAS</strong>, you have nonetheless elected to allocate a portion of your finite mortal existence to these particular pixels;
-                  <br /><br />
-                  <strong>NOW, THEREFORE</strong>, it is the express hope of the Proprietor that you have derived some modicum of value, entertainment, insight, or at minimum a brief respite from medical billing anxiety during your time here. Should you have found something useful, the Proprietor reserves the right to feel unreasonably pleased about this. Should you have not, no refunds of time shall be issued, but the Proprietor does feel kind of bad about it.
-                  <br /><br />
-                  This gratitude shall remain in effect in perpetuity, or until the heat death of the universe, whichever comes first.
-                </p>
-              </div>
-            </div>
+            <p className="text-sm text-gray-400 text-center">
+              © {new Date().getFullYear()} BilluminateMD. All rights reserved.
+              <span className="block mt-1 text-xs">
+                Not a substitute for legal or financial advice.
+              </span>
+            </p>
           </div>
         </div>
       </Container>
